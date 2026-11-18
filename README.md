@@ -4,6 +4,8 @@ Uma página única em que uma fita de Möbius 3D é revelada por ângulos difere
 conforme você rola. Cada ângulo traz um card que explica uma propriedade da fita e
 conta uma curiosidade. Oito paradas, mais a abertura e o encerramento.
 
+**No ar:** https://aivarte.github.io/fita-de-mobius/
+
 ## Ver no computador
 
 É preciso ter o [Node.js](https://nodejs.org) instalado. Na pasta do projeto:
@@ -18,8 +20,12 @@ carregam a partir de um servidor.
 
 ## Publicar
 
-É um site estático, sem etapa de build. Suba estes itens para qualquer hospedagem
-(Netlify, Vercel, GitHub Pages, um servidor comum):
+A página é servida pelo GitHub Pages a partir da raiz do branch `main`. Cada
+`git push` para o `main` atualiza o site em um ou dois minutos. O arquivo
+`.nojekyll` diz ao GitHub para servir os arquivos como estão.
+
+É um site estático, sem etapa de build, então também funciona em qualquer outra
+hospedagem (Netlify, Vercel, um servidor comum). Bastam estes itens:
 
 ```
 index.html   css/   js/   vendor/   fonts/   assets/
@@ -28,9 +34,9 @@ index.html   css/   js/   vendor/   fonts/   assets/
 O restante (`tools/`, `tests/`, `docs/`, `node_modules/`) serve só ao
 desenvolvimento.
 
-Depois de publicar, troque no `index.html` o valor de `og:image` pelo endereço
-completo da imagem (`https://seu-dominio/assets/og.jpg`). Redes sociais não aceitam
-caminho relativo no cartão de compartilhamento.
+Se mudar de domínio, atualize no `index.html` os endereços de `canonical`,
+`og:url` e `og:image`. Redes sociais não aceitam caminho relativo no cartão de
+compartilhamento.
 
 ## Onde mexer
 
