@@ -1,0 +1,19 @@
+{
+  "name": "fita-de-mobius",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Página-experiência sobre a fita de Möbius: uma fita 3D revelada por ângulos conforme o scroll.",
+  "scripts": {
+    "start": "node tools/serve.mjs --open",
+    "test": "node --test",
+    "capture": "node tools/capture.mjs"
+  },
+  "devDependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "playwright-core": "^1.65.1",
+    "three": "^0.170.0"
+  }
+}

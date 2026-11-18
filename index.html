@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Fita de Möbius: uma superfície, um lado só</title>
+    <meta
+      name="description"
+      content="Uma fita de Möbius em 3D, revelada ângulo a ângulo conforme você rola a página. Oito paradas sobre a superfície que tem um lado só e uma única borda."
+    />
+    <meta name="theme-color" content="#08090c" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+
+    <link rel="preload" href="fonts/cormorant-garamond-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <script>
+      (function (root) {
+        root.classList.add('js');
+        // Se o 3D não subir em alguns segundos (sem WebGL, arquivo que falhou), a página
+        // cai para a versão estática em vez de ficar vazia.
+        setTimeout(function () {
+          if (!root.classList.contains('is-ready')) root.classList.add('no-webgl');
+        }, 8000);
+      })(document.documentElement);
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.min.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
+    <link rel="modulepreload" href="vendor/three/three.module.min.js" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+
+  <body>
+    <a class="skip" href="#lado">Pular para o conteúdo</a>
+
+    <canvas class="stage" aria-hidden="true"></canvas>
+
+    <svg class="leader" aria-hidden="true" focusable="false">
+      <polyline class="leader__line" points="" />
+      <circle class="leader__ring" r="6" />
+      <circle class="leader__dot" r="2" />
+    </svg>
+
+    <div class="progress" aria-hidden="true"></div>
+
+    <header class="mast">
+      <a class="mast__mark" href="#abertura" data-go="abertura" aria-label="Voltar à abertura">Möbius</a>
+    </header>
+
+    <nav class="rail" aria-label="Paradas">
+      <ol>
+        <li><a href="#lado" data-go="lado"><span>Um lado só</span></a></li>
+        <li><a href="#borda" data-go="borda"><span>Uma borda só</span></a></li>
+        <li><a href="#corte" data-go="corte"><span>Corte ao meio</span></a></li>
+        <li><a href="#orientacao" data-go="orientacao"><span>Orientação</span></a></li>
+        <li><a href="#historia" data-go="historia"><span>1858</span></a></li>
+        <li><a href="#industria" data-go="industria"><span>Na fábrica</span></a></li>
+        <li><a href="#arte" data-go="arte"><span>Na arte</span></a></li>
+        <li><a href="#raiz" data-go="raiz"><span>Raiz de três</span></a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section class="scene scene--edge" id="abertura" data-scene="abertura">
+        <div class="lead">
+          <h1>Fita de Möbius</h1>
+          <p>
+            Uma superfície com um lado só e uma única borda. Oito ângulos para entender como isso é
+            possível.
+          </p>
+          <a class="button" href="#lado" data-go="lado">Começar a volta</a>
+        </div>
+      </section>
+
+      <section class="scene scene--long" id="lado" data-scene="lado" data-slot="left">
+        <article class="card">
+          <h2>Um lado só</h2>
+          <p>
+            Tente pintar apenas um lado desta fita. A tinta percorre a superfície inteira e volta ao
+            ponto de partida sem nunca cruzar a borda. As duas faces que você vê são uma só.
+          </p>
+          <p class="card__aside">
+            Depois de uma volta, você está no mesmo lugar, mas no verso do papel. Só na segunda
+            volta retorna ao começo.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="borda" data-scene="borda" data-slot="right">
+        <article class="card">
+          <h2>Uma borda só</h2>
+          <p>
+            Um anel comum de papel tem duas bordas, a de dentro e a de fora. Aqui, a luz que sai
+            pela borda de fora passa para a de dentro e retorna sem interrupção. É uma única curva
+            fechada.
+          </p>
+          <p class="card__aside">
+            Essa borda tem cerca do dobro do comprimento da fita. Para a topologia, ela é um
+            círculo.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="corte" data-scene="corte" data-slot="low-left">
+        <article class="card">
+          <h2>Corte ao meio</h2>
+          <p>
+            Corte a fita pelo centro, ao longo do comprimento. Em vez de duas fitas, você fica com
+            uma só: duas vezes mais longa, com duas torções completas e, agora, dois lados.
+          </p>
+          <p class="card__aside">
+            Corte a um terço da borda e surgem duas peças entrelaçadas: uma fita de Möbius mais
+            estreita e um anel com o dobro do comprimento.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="orientacao" data-scene="orientacao" data-slot="right">
+        <article class="card">
+          <h2>Sem horário nem anti-horário</h2>
+          <p>
+            Desenhe uma seta horária na fita, como em papel transparente. Depois de uma volta, ela
+            retorna girando ao contrário. Nenhum sentido de rotação vale para a superfície inteira:
+            ela é não orientável.
+          </p>
+          <p class="card__aside">
+            Una duas fitas de Möbius pela borda e o resultado é uma garrafa de Klein, que só existe
+            sem se atravessar em quatro dimensões.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="historia" data-scene="historia" data-slot="left">
+        <article class="card">
+          <h2>1858, duas vezes</h2>
+          <p>
+            Dois matemáticos alemães chegaram à mesma forma no mesmo ano, sem saber um do outro:
+            Johann Benedict Listing, em julho, e August Ferdinand Möbius, por volta de setembro.
+            Ficou o nome do segundo.
+          </p>
+          <p class="card__aside">
+            A forma é mais antiga que os dois. Um mosaico romano do século III, encontrado em
+            Sentinum, já mostra uma faixa com a mesma meia torção.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="industria" data-scene="industria" data-slot="low-right">
+        <article class="card">
+          <h2>Do papel à fábrica</h2>
+          <p>
+            Uma correia com meia torção trabalha com as duas faces, uma de cada vez, e por isso
+            dura mais. A B.F. Goodrich patenteou uma esteira assim em 1957.
+          </p>
+          <p class="card__aside">
+            O símbolo da reciclagem é uma fita de Möbius feita de três setas. Foi desenhado em 1970
+            por Gary Anderson, então estudante universitário.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="arte" data-scene="arte" data-slot="left">
+        <article class="card">
+          <h2>Na arte</h2>
+          <p>
+            Em 1963, M. C. Escher pôs nove formigas vermelhas para caminhar sem fim sobre a fita. No
+            mesmo ano, a brasileira Lygia Clark criou <cite>Caminhando</cite>, obra que só acontece
+            quando alguém recorta a própria fita de papel.
+          </p>
+          <p class="card__aside">
+            O símbolo do IMPA, o instituto de matemática sediado no Rio de Janeiro, é uma fita de
+            Möbius.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene" id="raiz" data-scene="raiz" data-slot="right">
+        <article class="card">
+          <h2>O enigma da raiz de três</h2>
+          <p>
+            Qual é a tira de papel mais curta que ainda fecha uma fita de Möbius? Em 1977 surgiu a
+            conjectura: o comprimento precisa ser maior que a largura multiplicada pela raiz de
+            três. A prova só veio em 2023, com Richard Schwartz.
+          </p>
+          <figure
+            class="strip"
+            role="img"
+            aria-label="Tira de papel na proporção limite: largura 1 e comprimento raiz de três, cerca de 1,73"
+          >
+            <span class="strip__side math" aria-hidden="true">1</span>
+            <div class="strip__paper"></div>
+            <span class="strip__base math" aria-hidden="true">√3 ≈ 1,73</span>
+          </figure>
+          <p class="card__aside">
+            Outro limite curioso: um mapa desenhado sobre a fita pode exigir seis cores. No plano,
+            quatro sempre bastam.
+          </p>
+        </article>
+      </section>
+
+      <section class="scene scene--edge" id="fim" data-scene="fim">
+        <div class="lead">
+          <h2>Você voltou ao início. <em>Só que do outro lado.</em></h2>
+          <a class="button" href="#abertura" data-go="abertura">Dar outra volta</a>
+        </div>
+
+        <footer class="foot">
+          <details class="sources">
+            <summary>Fontes</summary>
+            <ul>
+              <li><a href="https://en.wikipedia.org/wiki/M%C3%B6bius_strip" rel="noopener">Möbius strip, Wikipedia</a></li>
+              <li><a href="https://www.encyclopedia.com/people/science-and-technology/mathematics-biographies/august-ferdinand-mobius" rel="noopener">Möbius, August Ferdinand, Complete Dictionary of Scientific Biography</a></li>
+              <li><a href="https://arxiv.org/abs/1609.07779" rel="noopener">Cartwright e González, Möbius strips before Möbius</a></li>
+              <li><a href="https://patents.google.com/patent/US2784834A/en" rel="noopener">Patente US 2.784.834, Conveyor for hot material</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Recycling_symbol" rel="noopener">Recycling symbol, Wikipedia</a></li>
+              <li><a href="https://escherinhetpaleis.nl/showpiece/mobius-strip-ii/?lang=en" rel="noopener">Möbius Strip II (Red Ants), Escher in Het Paleis</a></li>
+              <li><a href="https://portal.lygiaclark.org.br/obras/67357/caminhando" rel="noopener">Caminhando, 1963, Portal Lygia Clark</a></li>
+              <li><a href="https://impa.br/noticias/para-quem-e-fa-do-impa-dez-curiosidades-sobre-o-instituto/" rel="noopener">Dez curiosidades sobre o instituto, IMPA</a></li>
+              <li><a href="https://annals.math.princeton.edu/2025/201-1/p05" rel="noopener">R. E. Schwartz, The optimal paper Moebius band, Annals of Mathematics</a></li>
+            </ul>
+          </details>
+          <a class="foot__link" href="https://github.com/Aivarte" rel="author noopener">github.com/Aivarte</a>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
