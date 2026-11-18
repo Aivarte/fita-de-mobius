@@ -7,6 +7,7 @@
 //   node tools/capture.mjs --at 0.3,0.7            pontos do progresso local de cada parada
 //   node tools/capture.mjs --query "motion=reduce" parâmetros extras na URL
 //   node tools/capture.mjs --tag antes             prefixo no nome dos arquivos
+//   node tools/capture.mjs --no-webgl              simula um navegador sem WebGL
 //
 // As imagens vão para tools/out/. Sai com código 1 se houver erro no console.
 
@@ -58,6 +59,12 @@ async function launch(glArgs) {
 
 async function openPage(name) {
   const context = await browser.newContext({ ...VIEWPORTS[name], reducedMotion });
+  if (args.includes('--no-webgl')) {
+    // Simula um navegador sem WebGL, para conferir a versão estática da página.
+    await context.addInitScript(() => {
+      HTMLCanvasElement.prototype.getContext = () => null;
+    });
+  }
   const page = await context.newPage();
   page.on('console', (message) => {
     if (message.type() === 'error') problems.push(`[${name}] console: ${message.text()}`);

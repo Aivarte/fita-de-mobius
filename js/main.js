@@ -66,45 +66,46 @@ function boot() {
   const dust = createDust();
   scene.add(dust.object);
 
-  // Ajustes de visual pela URL, para afinar a fotografia sem editar código.
-  // Ex.: ?film=220,500&ior=2.1&rough=0.2&exposure=1.1&bloom=0.4,0.7,0.85
-  const numbers = (key) => params.get(key)?.split(',').map(Number);
-  if (params.has('film')) ribbon.uniforms.uFilm.value.fromArray(numbers('film'));
-  if (params.has('ior')) ribbon.material.iridescenceIOR = Number(params.get('ior'));
-  if (params.has('rough')) ribbon.material.roughness = Number(params.get('rough'));
-  if (params.has('color')) ribbon.material.color.set(`#${params.get('color')}`);
-  if (params.has('exposure')) renderer.toneMappingExposure = Number(params.get('exposure'));
-  if (params.has('env')) scene.environmentIntensity = Number(params.get('env'));
-
   // ---------- Qualidade ----------
 
+  // Ponto de partida: GPUs integradas, celulares e máquinas modestas começam no nível
+  // médio. Daí em diante, quem decide é o tempo de quadro medido.
+  const gl = renderer.getContext();
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpuName = debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : 'WebGL';
+  const integrated = /Intel|Mali|Adreno|PowerVR|Apple GPU|SwiftShader|llvmpipe|Basic Render/i.test(gpuName);
   const coarse = window.matchMedia('(pointer: coarse)').matches;
   const modest = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  // ?q=0, 1 ou 2 fixa um nível (alta, média, baixa) e desliga o ajuste automático.
   const qualityLocked = params.has('q');
-  stage.setQuality(qualityLocked ? Number(params.get('q')) : coarse || modest ? 1 : 0);
+  stage.setQuality(qualityLocked ? Number(params.get('q')) : integrated || coarse || modest ? 1 : 0);
 
   const applyQuality = () => {
+    // O CSS também economiza no nível mais baixo (ver [data-quality] em styles.css).
+    root.dataset.quality = String(stage.qualityIndex);
     ribbon.uniforms.uHardCut.value = stage.multisampled ? 0 : 1;
-    const buffer = renderer.getDrawingBufferSize(new THREE.Vector2());
-    dust.uniforms.uScale.value = buffer.y / (2 * Math.tan((camera.fov * Math.PI) / 360));
+    dust.uniforms.uScale.value = stage.bufferHeight / (2 * Math.tan((camera.fov * Math.PI) / 360));
   };
 
-  const monitor = { cooldown: 3, frames: 0, total: 0 };
+  // Desce um degrau quando a página está lenta de verdade: mais de um quarto dos quadros
+  // abaixo de uns 45 qps, em duas janelas seguidas de 60 quadros. Contar quadros lentos,
+  // em vez de tirar a média, ignora engasgos isolados, que baixar a qualidade não resolve.
+  const monitor = { cooldown: 3, frames: 0, slow: 0, strikes: 0 };
   const adaptQuality = (rawDt) => {
     if (qualityLocked || document.hidden) return;
     monitor.cooldown -= rawDt;
     if (monitor.cooldown > 0) return;
     monitor.frames += 1;
-    monitor.total += rawDt;
+    if (rawDt > 1 / 45) monitor.slow += 1;
     if (monitor.frames < 60) return;
-    const average = monitor.total / monitor.frames;
+    monitor.strikes = monitor.slow > 15 ? monitor.strikes + 1 : 0;
     monitor.frames = 0;
-    monitor.total = 0;
-    // Abaixo de uns 40 quadros por segundo, desce um degrau.
-    if (average > 1 / 40 && stage.qualityIndex < QUALITY_LEVELS.length - 1) {
+    monitor.slow = 0;
+    if (monitor.strikes >= 2 && stage.qualityIndex < QUALITY_LEVELS.length - 1) {
       stage.setQuality(stage.qualityIndex + 1);
       applyQuality();
       monitor.cooldown = 3;
+      monitor.strikes = 0;
     }
   };
 
@@ -243,7 +244,7 @@ function boot() {
     pointer.sy = damp(pointer.sy, reduced ? 0 : pointer.y, 3, dt);
 
     const aspect = stage.size.width / stage.size.height;
-    const fit = aspect < FIT_ASPECT ? Math.pow(FIT_ASPECT / aspect, 0.82) : 1;
+    const fit = aspect < FIT_ASPECT ? Math.pow(FIT_ASPECT / aspect, 0.72) : 1;
     const az = shot.az + state.drift + 0.05 * Math.sin(clock * 0.21) + pointer.sx * 0.06;
     const el = shot.el + 0.022 * Math.sin(clock * 0.17 + 1.3) - pointer.sy * 0.035;
     const dist = shot.dist * fit;
@@ -300,14 +301,32 @@ function boot() {
     dust.uniforms.uTime.value = clock;
     ribbonGroup.updateMatrixWorld(true);
 
+    // As centelhas iluminam a fita no shader, que precisa delas em espaço de visão.
+    const light = (uniform, spark, strength) => {
+      position.copy(spark.object.position).applyMatrix4(ribbonGroup.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
+      uniform.value.set(position.x, position.y, position.z, strength * spark.weight);
+    };
+    light(u.uSparkA, traveler, 0.9);
+    light(u.uSparkB, runner, 0.7);
+
     // Interface.
     const cardOn = cards.hasCard(index) && local >= CARD_WINDOW[0] && local <= CARD_WINDOW[1];
     cards.update(cardOn ? index : -1, cardOn ? projectAnchor(SCENES[index], clock) : null);
     navigation.update(index, Ts);
   };
 
+  // Se o navegador tomar o contexto WebGL de volta (pouca memória, troca de GPU), a
+  // página passa para a versão estática em vez de ficar com um palco vazio.
+  let alive = true;
+  canvas.addEventListener('webglcontextlost', () => {
+    alive = false;
+    root.classList.remove('is-ready');
+    root.classList.add('no-webgl');
+  });
+
   let last = performance.now() / 1000;
   const loop = (now) => {
+    if (!alive) return;
     requestAnimationFrame(loop);
     const time = now / 1000;
     const rawDt = time - last;
@@ -321,6 +340,14 @@ function boot() {
 
   measure();
   applyQuality();
+
+  // Compila todos os shaders agora, com os figurantes à mostra, para que nenhuma
+  // parada engasgue ao aparecer pela primeira vez.
+  const extras = [traveler.object, runner.object, ants.object];
+  extras.forEach((object) => (object.visible = true));
+  stage.compile();
+  extras.forEach((object) => (object.visible = false));
+
   update(last, 0);
   stage.render(last, false);
   requestAnimationFrame(loop);
@@ -328,11 +355,10 @@ function boot() {
   root.classList.remove('no-webgl');
   root.classList.add('is-ready');
 
-  const gl = renderer.getContext();
-  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  // Ganchos para as ferramentas de captura e de medição (tools/).
   window.__mobius = {
     ready: true,
-    renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'WebGL',
+    renderer: gpuName,
     /** Assenta a câmera no destino de uma vez. Usado pela ferramenta de captura. */
     settle() {
       state.started = false;

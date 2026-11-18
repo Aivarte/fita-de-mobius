@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node tools/serve.mjs --open",
     "test": "node --test",
-    "capture": "node tools/capture.mjs"
+    "capture": "node tools/capture.mjs",
+    "perf": "node tools/perf.mjs",
+    "assets": "node tools/assets.mjs"
   },
   "devDependencies": {
     "@fontsource-variable/geist": "^5.3.0",

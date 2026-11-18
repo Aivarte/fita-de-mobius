@@ -38,7 +38,7 @@ export const SCENES = [
 
 export const SHOTS = [
   // Abertura: três quartos clássico, a fita à direita do título.
-  shot({ az: 25, el: 24, dist: 6.3, roll: -4, shift: [0.18, 0.1], drift: 1 }),
+  shot({ az: 25, el: 24, dist: 6.3, roll: -4, shift: [0.18, 0.14], drift: 1 }),
   // Um lado só: de cima, com o eixo do giro atravessado no quadro. A fita tomba na
   // direção da câmera como uma moeda, e a face que está sendo pintada fica sempre à vista.
   shot({ az: 90, el: 58, dist: 6.6, shift: [0.2, 0] }),
@@ -57,5 +57,5 @@ export const SHOTS = [
   // O enigma da raiz de três: recua para caber a fita mais larga.
   shot({ az: 395, el: 34, dist: 7.4, shift: [-0.21, 0] }),
   // Encerramento: o mesmo quadro da abertura, uma volta inteira depois.
-  shot({ az: 385, el: 24, dist: 6.3, roll: -4, shift: [0.18, 0.1], drift: 1 }),
+  shot({ az: 385, el: 24, dist: 6.3, roll: -4, shift: [0.18, 0.14], drift: 1 }),
 ];

@@ -49,46 +49,41 @@ function glowMaterial(color, intensity) {
   return new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity) });
 }
 
-/** Pequena esfera luminosa com uma luz pontual, que viaja sobre a fita. */
-function createSpark(color, intensity, lightIntensity) {
-  const group = new THREE.Group();
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.02, 20, 14), glowMaterial(color, intensity));
-  const light = new THREE.PointLight(color, lightIntensity, 1.6, 2);
-  group.add(core, light);
-  group.visible = false;
-  return { group, core, light };
+/**
+ * Pequena esfera luminosa que viaja sobre a fita. A luz que ela lança na superfície
+ * é calculada no shader da fita (uniformes uSparkA e uSparkB): sai mais barato do
+ * que uma luz de verdade e não muda a contagem de luzes da cena no meio da jornada.
+ */
+function createSpark(color, coreIntensity, minScale) {
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.02, 20, 14), glowMaterial(color, coreIntensity));
+  core.visible = false;
+  return {
+    object: core,
+    /** Brilho atual, de 0 (apagada) a 1. */
+    weight: 0,
+    /** Posiciona a centelha, em coordenadas da fita, e ajusta o brilho. */
+    place(point, weight) {
+      this.weight = weight > 0.01 ? weight : 0;
+      core.visible = this.weight > 0;
+      if (!core.visible) return;
+      core.position.set(point[0], point[1], point[2]);
+      core.scale.setScalar(minScale + 0.4 * weight);
+    },
+  };
 }
 
 /** O viajante que pinta a fita na primeira parada. `U` é a posição na carta. */
 export function createTraveler() {
-  const spark = createSpark(0xffa040, 9, 0.28);
-  return {
-    object: spark.group,
-    update(U, weight) {
-      spark.group.visible = weight > 0.01;
-      if (!spark.group.visible) return;
-      const p = chartPoint(U, 0, DIMS, 0.05);
-      spark.group.position.set(p[0], p[1], p[2]);
-      spark.core.scale.setScalar(0.6 + 0.4 * weight);
-      spark.light.intensity = 0.28 * weight;
-    },
-  };
+  const spark = createSpark(0xffa040, 9, 0.6);
+  spark.update = (U, weight) => spark.place(chartPoint(U, 0, DIMS, 0.05), weight);
+  return spark;
 }
 
 /** A luz que percorre a borda única na segunda parada. `e` é a coordenada da borda. */
 export function createEdgeRunner() {
-  const spark = createSpark(0xffe3c0, 8, 0.35);
-  return {
-    object: spark.group,
-    update(e, weight) {
-      spark.group.visible = weight > 0.01;
-      if (!spark.group.visible) return;
-      const p = edgePoint(e, DIMS, 0.012);
-      spark.group.position.set(p[0], p[1], p[2]);
-      spark.core.scale.setScalar(0.5 + 0.4 * weight);
-      spark.light.intensity = 0.35 * weight;
-    },
-  };
+  const spark = createSpark(0xffe3c0, 8, 0.5);
+  spark.update = (e, weight) => spark.place(edgePoint(e, DIMS, 0.012), weight);
+  return spark;
 }
 
 /** Junta geometrias já transformadas numa só (posição, normal e índices). */

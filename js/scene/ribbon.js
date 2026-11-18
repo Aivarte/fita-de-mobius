@@ -53,6 +53,9 @@ const FRAGMENT_PARS = /* glsl */ `
   uniform float uMosaic;
   uniform float uBelt;
   uniform float uLattice;
+  // Centelhas viajantes: posição em espaço de visão (xyz) e brilho (w).
+  uniform vec4 uSparkA;
+  uniform vec4 uSparkB;
 
   #define MOB_LAP 6.283185307179586
   #define MOB_CHART 12.566370614359172
@@ -93,6 +96,10 @@ const FRAGMENT_SURFACE = /* glsl */ `
   float mobCoverage = 1.0;
 
   // A espessura da película varia devagar pela fita: é o que cria as faixas de cor.
+  // A beirada é um meio cilindro muito fino. Um pouco mais fosca, o brilho dela vira
+  // uma linha contínua em vez de pontilhar quando ocupa menos de um pixel.
+  roughnessFactor = mix(roughnessFactor, 0.34, mobRim);
+
   float mobFlow = 0.5 + 0.5 * sin(mobU + mobV * 1.4 + uTime * 0.06);
   mobFlow = mix(mobFlow, 0.5 + 0.5 * sin(mobU * 2.5 - mobV * 2.2 - uTime * 0.045), 0.35);
   float mobThickness = mix(uFilm.x, uFilm.y, mobFlow);
@@ -198,6 +205,14 @@ const FRAGMENT_SURFACE = /* glsl */ `
     mobCoverage *= mobCover(hole);
   }
 
+  // Luz das centelhas sobre a superfície: cai com o quadrado da distância e só
+  // ilumina a face voltada para a centelha.
+  vec3 mobToA = uSparkA.xyz + vViewPosition;
+  vec3 mobToB = uSparkB.xyz + vViewPosition;
+  totalEmissiveRadiance +=
+    vec3(1.0, 0.6, 0.24) * uSparkA.w * max(dot(normal, normalize(mobToA)), 0.0) / (1.0 + 70.0 * dot(mobToA, mobToA)) +
+    vec3(1.0, 0.88, 0.72) * uSparkB.w * max(dot(normal, normalize(mobToB)), 0.0) / (1.0 + 70.0 * dot(mobToB, mobToB));
+
   diffuseColor.a *= mobCoverage;
   if (mobCoverage < mix(0.004, 0.5, uHardCut)) discard;
 `;
@@ -215,7 +230,7 @@ export function createRibbonMaterial(glyphMap) {
     uAccent: { value: new THREE.Color(1.0, 0.6, 0.22) },
     // Espessura da película em nanômetros. Nesta faixa a interferência fica na
     // primeira ordem: dourado, magenta e azul, como titânio anodizado.
-    uFilm: { value: new THREE.Vector2(168, 258) },
+    uFilm: { value: new THREE.Vector2(148, 242) },
     uHardCut: { value: 0 },
     uPaint: { value: 0 },
     uPaintHead: { value: 0 },
@@ -228,6 +243,8 @@ export function createRibbonMaterial(glyphMap) {
     uMosaic: { value: 0 },
     uBelt: { value: 0 },
     uLattice: { value: 0 },
+    uSparkA: { value: new THREE.Vector4() },
+    uSparkB: { value: new THREE.Vector4() },
   };
 
   const material = new THREE.MeshPhysicalMaterial({
@@ -236,7 +253,7 @@ export function createRibbonMaterial(glyphMap) {
     roughness: 0.18,
     iridescence: 1,
     iridescenceIOR: 1.85,
-    iridescenceThicknessRange: [168, 258],
+    iridescenceThicknessRange: [148, 242],
   });
   // Os recortes (corte e treliça) usam a cobertura do MSAA para ficarem lisos.
   material.alphaToCoverage = true;

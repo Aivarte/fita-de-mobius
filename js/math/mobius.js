@@ -15,7 +15,7 @@ export const TAU = Math.PI * 2;
 export const CHART = TAU * 2;
 
 /** Dimensões padrão: raio da linha central, meia largura total e meia espessura. */
-export const DIMS = Object.freeze({ radius: 1, halfWidth: 0.42, halfThickness: 0.014 });
+export const DIMS = Object.freeze({ radius: 1, halfWidth: 0.42, halfThickness: 0.018 });
 
 const flatHalfWidth = (dims) => dims.halfWidth - dims.halfThickness;
 

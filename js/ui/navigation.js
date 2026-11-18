@@ -2,6 +2,7 @@
 
 export function createNavigation({ sceneIds, sceneElements, isReduced }) {
   const root = document.documentElement;
+  const bar = document.querySelector('.progress');
   const links = [...document.querySelectorAll('.rail a')];
   const indexOf = new Map(sceneIds.map((id, i) => [id, i]));
   let current = -1;
@@ -48,7 +49,8 @@ export function createNavigation({ sceneIds, sceneElements, isReduced }) {
       const value = Math.min(1, Math.max(0, (T - 0.5) / (sceneIds.length - 1)));
       if (Math.abs(value - progress) > 0.0015) {
         progress = value;
-        root.style.setProperty('--progress', value.toFixed(4));
+        // Direto no fio de progresso: uma variável na raiz recalcularia o estilo da página toda.
+        bar.style.setProperty('--progress', value.toFixed(4));
       }
     },
   };

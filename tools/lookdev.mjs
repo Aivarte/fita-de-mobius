@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-// Folha de contato: renderiza a mesma cena com parâmetros diferentes na URL e junta
-// tudo numa imagem só, para comparar variações de visual lado a lado.
+// Folha de contato: renderiza várias paradas (ou a mesma parada com parâmetros
+// diferentes na URL) e junta tudo numa imagem só, para conferir o visual de relance.
 //
-//   node tools/lookdev.mjs --scene abertura --tag filme "film=120,200" "film=150,230&ior=2.2"
+//   node tools/lookdev.mjs --scenes "abertura,lado@0.3,lado@0.7,borda" --tag jornada
+//   node tools/lookdev.mjs --scene arte --tag niveis "q=0" "q=1" "q=2"
 //
-// Opções: --scene id, --at progresso local (0 a 1), --cols colunas, --size LxA, --tag nome.
+// Opções: --scenes lista de "id" ou "id@progresso", --scene e --at para uma só,
+// --cols colunas, --size LxA, --base parâmetros comuns da URL, --tag nome do arquivo.
 // A imagem vai para tools/out/sheet-<tag>.png.
 
 import { chromium } from 'playwright-core';
