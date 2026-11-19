@@ -4,7 +4,7 @@ Uma página única em que uma fita de Möbius 3D é revelada por ângulos difere
 conforme você rola. Cada ângulo traz um card que explica uma propriedade da fita e
 conta uma curiosidade. Oito paradas, mais a abertura e o encerramento.
 
-**No ar:** https://aivarte.github.io/fita-de-mobius/
+**No ar:** https://fita-de-mobius.vercel.app e https://aivarte.github.io/fita-de-mobius/
 
 ## Ver no computador
 
@@ -20,9 +20,11 @@ carregam a partir de um servidor.
 
 ## Publicar
 
-A página é servida pelo GitHub Pages a partir da raiz do branch `main`. Cada
-`git push` para o `main` atualiza o site em um ou dois minutos. O arquivo
-`.nojekyll` diz ao GitHub para servir os arquivos como estão.
+A página é servida em dois lugares, ambos a partir da raiz do branch `main`: pela
+Vercel (projeto `fita-de-mobius`, ligado a este repositório) e pelo GitHub Pages.
+Cada `git push` para o `main` atualiza os dois em um ou dois minutos. O
+`.vercelignore` faz a Vercel receber só o site, e o `.nojekyll` diz ao GitHub
+para servir os arquivos como estão.
 
 É um site estático, sem etapa de build, então também funciona em qualquer outra
 hospedagem (Netlify, Vercel, um servidor comum). Bastam estes itens:

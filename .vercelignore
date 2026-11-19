@@ -1,0 +1,8 @@
+# A Vercel só precisa do site. O resto é material de desenvolvimento.
+node_modules
+tools
+tests
+docs
+package.json
+package-lock.json
+README.md
