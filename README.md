@@ -4,7 +4,8 @@ Uma página única em que uma fita de Möbius 3D é revelada por ângulos difere
 conforme você rola. Cada ângulo traz um card que explica uma propriedade da fita e
 conta uma curiosidade. Oito paradas, mais a abertura e o encerramento.
 
-**No ar:** https://fita-de-mobius.vercel.app e https://aivarte.github.io/fita-de-mobius/
+**No ar:** https://fita-de-mobius.vercel.app (endereço oficial). Há uma cópia em
+https://aivarte.github.io/fita-de-mobius/
 
 ## Ver no computador
 
